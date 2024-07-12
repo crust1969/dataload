@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import os
+import io
 
 # Set page config
 st.set_page_config(page_title='Excel File Processor', layout='wide')
@@ -48,13 +48,17 @@ if uploaded_file is not None:
     save_button = st.sidebar.button('Save Excel File')
 
     if save_button:
-        # Save the modified dataframe back to an Excel file
-        save_path = os.path.join(os.getcwd(), output_file)
-        df.to_excel(save_path, index=False)
-        st.success(f'File saved as {save_path}')
+        # Save the modified dataframe to an in-memory buffer
+        buffer = io.BytesIO()
+        df.to_excel(buffer, index=False)
+        buffer.seek(0)
 
         # Provide a download link
-        with open(save_path, 'rb') as f:
-            st.download_button('Download Excel File', f, file_name=output_file)
+        st.download_button(
+            label='Download Excel File',
+            data=buffer,
+            file_name=output_file,
+            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 else:
     st.write('## Waiting for Excel file upload...')
