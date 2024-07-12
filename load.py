@@ -13,8 +13,12 @@ uploaded_file = st.sidebar.file_uploader("Choose a file", type=['xlsx'])
 st.sidebar.header('Extend Rows')
 extend_rows = st.sidebar.number_input('Enter number of rows to extend', min_value=0, value=0)
 
-# Initialize an empty list to store new row data
-new_rows_data = []
+# Sidebar for output file name
+st.sidebar.header('Output File Name')
+output_file = st.sidebar.text_input('Enter the output file name', value='output.xlsx')
+
+# Initialize an empty DataFrame for new rows
+new_rows_df = pd.DataFrame()
 
 if uploaded_file is not None:
     # Load the Excel file into a dataframe
@@ -25,23 +29,21 @@ if uploaded_file is not None:
 
     # If the user wants to extend rows, display input fields for each column
     if extend_rows > 0:
-        with st.sidebar.form(key='row_extension_form'):
-            for i in range(extend_rows):
-                st.subheader(f'Row {len(df) + i + 1}')
-                new_row = {}
-                for col in df.columns:
-                    new_value = st.text_input(f'{col} (Row {len(df) + i + 1})', key=f'{col}_{i}')
-                    new_row[col] = new_value
-                new_rows_data.append(new_row)
-            submit_button = st.form_submit_button(label='Add Rows to DataFrame')
+        new_row_data = {}
+        for col in df.columns:
+            new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=col)
 
-        if submit_button:
-            # Convert the list of new rows into a DataFrame
-            new_rows_df = pd.DataFrame(new_rows_data)
+        # Button to add new row to the dataframe
+        add_row_button = st.sidebar.button('Add New Row')
+
+        if add_row_button:
+            # Append the new row to the new_rows_df DataFrame
+            new_rows_df = new_rows_df.append(new_row_data, ignore_index=True)
 
             # Ensure the data types match the original DataFrame
             for col in df.columns:
-                new_rows_df[col] = new_rows_df[col].astype(df[col].dtype)
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    new_rows_df[col] = pd.to_numeric(new_rows_df[col], errors='coerce')
 
             # Append the new rows to the existing DataFrame
             df = pd.concat([df, new_rows_df], ignore_index=True)
@@ -49,9 +51,7 @@ if uploaded_file is not None:
             # Display the updated dataframe
             st.write('## Updated Excel File Content', df)
 
-    # Sidebar for saving the file
-    st.sidebar.header('Save File')
-    output_file = st.sidebar.text_input('Enter the output file name', value='updated_file.xlsx')
+    # Button to save the updated dataframe to an Excel file
     save_button = st.sidebar.button('Save Excel File')
 
     if save_button:
@@ -69,4 +69,3 @@ if uploaded_file is not None:
         )
 else:
     st.write('## Waiting for Excel file upload...')
-
