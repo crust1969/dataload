@@ -31,7 +31,7 @@ if uploaded_file is not None:
     if extend_rows > 0:
         new_row_data = {}
         for col in df.columns:
-            new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=col)
+            new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=f'{col}_{len(df)}')
 
         # Button to add new row to the dataframe
         add_row_button = st.sidebar.button('Add New Row')
