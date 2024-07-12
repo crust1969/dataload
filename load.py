@@ -59,5 +59,8 @@ if uploaded_file is not None:
             file_name=output_file,
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
+
+        # Display the updated dataframe again after saving
+        st.write('## Updated Excel File Content After Saving', df)
 else:
     st.write('## Waiting for Excel file upload...')
