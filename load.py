@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-from tkinter import filedialog
-from tkinter import Tk
 
 # Set page config
 st.set_page_config(page_title='Excel File Processor', layout='wide')
@@ -50,15 +48,13 @@ if uploaded_file is not None:
     save_button = st.sidebar.button('Save Excel File')
 
     if save_button:
-        # Use tkinter filedialog to choose directory
-        root = Tk()
-        root.withdraw()  # Hide the main window
-        save_directory = filedialog.askdirectory()
-        root.destroy()
-
         # Save the modified dataframe back to an Excel file
-        save_path = os.path.join(save_directory, output_file)
+        save_path = os.path.join(os.getcwd(), output_file)
         df.to_excel(save_path, index=False)
         st.success(f'File saved as {save_path}')
+
+        # Provide a download link
+        with open(save_path, 'rb') as f:
+            st.download_button('Download Excel File', f, file_name=output_file)
 else:
     st.write('## Waiting for Excel file upload...')
