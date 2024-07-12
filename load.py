@@ -35,20 +35,26 @@ if uploaded_file is not None:
                 new_rows_data.append(new_row)
             submit_button = st.form_submit_button(label='Add Rows to DataFrame')
 
-    if submit_button:
-        # Convert the list of new rows into a DataFrame
-        new_rows_df = pd.DataFrame(new_rows_data)
+        if submit_button:
+            # Convert the list of new rows into a DataFrame
+            new_rows_df = pd.DataFrame(new_rows_data)
 
-        # Ensure the data types match the original DataFrame
-        for col in df.columns:
-            new_rows_df[col] = new_rows_df[col].astype(df[col].dtype)
+            # Ensure the data types match the original DataFrame
+            for col in df.columns:
+                new_rows_df[col] = new_rows_df[col].astype(df[col].dtype)
 
-        # Append the new rows to the existing DataFrame
-        df = pd.concat([df, new_rows_df], ignore_index=True)
+            # Append the new rows to the existing DataFrame
+            df = pd.concat([df, new_rows_df], ignore_index=True)
 
-        # Display the updated dataframe
-        st.write('## Updated Excel File Content', df)
+            # Display the updated dataframe
+            st.write('## Updated Excel File Content', df)
 
+    # Sidebar for saving the file
+    st.sidebar.header('Save File')
+    output_file = st.sidebar.text_input('Enter the output file name', value='updated_file.xlsx')
+    save_button = st.sidebar.button('Save Excel File')
+
+    if save_button:
         # Save the modified dataframe to an in-memory buffer
         buffer = io.BytesIO()
         df.to_excel(buffer, index=False)
@@ -58,8 +64,9 @@ if uploaded_file is not None:
         st.download_button(
             label='Download Updated Excel File',
             data=buffer,
-            file_name='updated_file.xlsx',
+            file_name=output_file,
             mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
 else:
     st.write('## Waiting for Excel file upload...')
+
