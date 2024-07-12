@@ -31,22 +31,22 @@ if uploaded_file is not None:
     if extend_rows > 0:
         new_row_data = {}
         for col in df.columns:
-            new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=f'{col}_{len(df)}')
+            new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=f'{col}_{len(df) + len(new_rows_df)}')
 
         # Button to add new row to the dataframe
         add_row_button = st.sidebar.button('Add New Row')
 
         if add_row_button:
-            # Append the new row to the new_rows_df DataFrame
-            new_rows_df = new_rows_df.append(new_row_data, ignore_index=True)
+            # Convert the new row data to a DataFrame
+            new_row_df = pd.DataFrame([new_row_data])
 
             # Ensure the data types match the original DataFrame
             for col in df.columns:
                 if pd.api.types.is_numeric_dtype(df[col]):
-                    new_rows_df[col] = pd.to_numeric(new_rows_df[col], errors='coerce')
+                    new_row_df[col] = pd.to_numeric(new_row_df[col], errors='coerce')
 
-            # Append the new rows to the existing DataFrame
-            df = pd.concat([df, new_rows_df], ignore_index=True)
+            # Append the new row to the existing DataFrame
+            df = pd.concat([df, new_row_df], ignore_index=True)
 
             # Display the updated dataframe
             st.write('## Updated Excel File Content', df)
