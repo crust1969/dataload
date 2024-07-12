@@ -63,6 +63,9 @@ if uploaded_file is not None:
         df.to_excel(buffer, index=False)
         buffer.seek(0)
 
+        # Display the updated dataframe before download
+        st.write('## Updated Excel File Content Before Download', df)
+
         # Provide a download link
         st.download_button(
             label='Download Updated Excel File',
