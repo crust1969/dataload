@@ -17,9 +17,6 @@ extend_rows = st.sidebar.number_input('Enter number of rows to extend', min_valu
 st.sidebar.header('Output File Name')
 output_file = st.sidebar.text_input('Enter the output file name', value='output.xlsx')
 
-# Initialize an empty DataFrame for new rows
-new_rows_df = pd.DataFrame()
-
 if uploaded_file is not None:
     # Load the Excel file into a dataframe
     df = pd.read_excel(uploaded_file, header=0)
@@ -29,21 +26,27 @@ if uploaded_file is not None:
 
     # If the user wants to extend rows, display input fields for each column
     if extend_rows > 0:
-        new_row_data = {}
+        # Create a dictionary to hold the new row data
+        new_row_data = {col: None for col in df.columns}
         for col in df.columns:
-            new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=f'{col}_{len(df) + len(new_rows_df)}')
+            # Determine the data type of the column
+            col_type = df[col].dtype
+            # Create input fields based on the data type
+            if pd.api.types.is_numeric_dtype(col_type):
+                new_row_data[col] = st.sidebar.number_input(f'New value for {col}', key=f'{col}_{len(df)}')
+            elif pd.api.types.is_datetime64_any_dtype(col_type):
+                new_row_data[col] = st.sidebar.date_input(f'New value for {col}', key=f'{col}_{len(df)}')
+            else:
+                new_row_data[col] = st.sidebar.text_input(f'New value for {col}', key=f'{col}_{len(df)}')
 
         # Button to add new row to the dataframe
         add_row_button = st.sidebar.button('Add New Row')
 
         if add_row_button:
-            # Convert the new row data to a DataFrame
+            # Convert the new row data to a DataFrame with the same data types as the original
             new_row_df = pd.DataFrame([new_row_data])
-
-            # Ensure the data types match the original DataFrame
             for col in df.columns:
-                if pd.api.types.is_numeric_dtype(df[col]):
-                    new_row_df[col] = pd.to_numeric(new_row_df[col], errors='coerce')
+                new_row_df[col] = new_row_df[col].astype(df[col].dtype)
 
             # Append the new row to the existing DataFrame
             df = pd.concat([df, new_row_df], ignore_index=True)
