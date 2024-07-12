@@ -30,9 +30,6 @@ if uploaded_file is not None:
                 new_row.append(new_value)
             new_rows_data.append(new_row)
 
-    # Display the dataframe
-    st.write('## Excel File Content', df)
-
     # Button to add new rows to the dataframe
     add_rows_button = st.sidebar.button('Add Rows to DataFrame')
 
@@ -40,7 +37,9 @@ if uploaded_file is not None:
         # Convert the list of new rows into a DataFrame and append to the existing DataFrame
         new_rows_df = pd.DataFrame(new_rows_data, columns=df.columns)
         df = pd.concat([df, new_rows_df], ignore_index=True)
-        st.write('## Updated Excel File Content', df)
+
+    # Display the updated dataframe
+    st.write('## Updated Excel File Content', df)
 
     # Sidebar for saving the file
     st.sidebar.header('Save File')
